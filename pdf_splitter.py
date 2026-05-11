@@ -43,9 +43,13 @@ class PDFExtractorApp:
 
     def browse_file(self):
         """Opens a file dialog to select a PDF and populates the entry field."""
+        # Start in the Windows C: drive if in WSL, otherwise use the current directory
+        default_dir = "/mnt/c/Users" if os.path.exists("/mnt/c/Users") else os.getcwd()
+        
         filepath = filedialog.askopenfilename(
             title="Select a PDF",
-            filetypes=[("PDF Files", "*.pdf")]
+            initialdir=default_dir,
+            filetypes=[("PDF Files", "*.pdf"), ("All Files", "*.*")]
         )
         if filepath:
             self.file_entry.delete(0, tk.END)
@@ -92,6 +96,11 @@ class PDFExtractorApp:
         output_dir = os.path.dirname(os.path.abspath(input_path))
         output_path = os.path.join(output_dir, out_name)
 
+        # Validation: Prevent overwriting the input file
+        if os.path.abspath(input_path) == output_path:
+            messagebox.showerror("Error", "The new file name cannot be the same as the source file.")
+            return
+
         # Process extraction
         writer = PdfWriter()
         try:
@@ -101,7 +110,7 @@ class PDFExtractorApp:
             with open(output_path, "wb") as out_file:
                 writer.write(out_file)
                 
-            messagebox.showinfo("Success", f"Extracted pages {start_page} to {end_page}.\nSaved as:\n{output_name}")
+            messagebox.showinfo("Success", f"Extracted pages {start_page} to {end_page}.\nSaved as:\n{output_path}")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while saving the file:\n{e}")
 
