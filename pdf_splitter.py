@@ -1,7 +1,11 @@
 import os
+import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from pypdf import PdfReader, PdfWriter
+
+sys.setrecursionlimit(10000)
+
 
 class PDFExtractorApp:
     def __init__(self, root):
